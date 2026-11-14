@@ -1,0 +1,71 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  APP_NAME: bmi_otp
+
+
+run_unit_test:
+  tags:
+    - nginx
+  stage: test
+  image: nginx:latest
+  only:
+    - dev
+    - main
+  before_script:
+    - echo "$CI_COMMIT_BRANCH"
+    - echo "$CI_COMMIT_DESCRIPTION"
+    - echo "$CI_COMMIT_MESSAGE"
+    - echo "$CI_JOB_IMAGE"
+    - echo "$CI_JOB_NAME"
+    - echo "$CI_JOB_ID"
+  script:
+    - echo "running test $APP_NAME ..."
+    - nginx -t
+  after_script:
+    - echo "Cleaning up temp files..."
+
+run_lint_test:
+  tags:
+    - nginx
+  stage: test
+  image: nginx:latest
+  only:
+    - dev
+    - main
+  script:
+    # - echo "Run lint test $APP_NAME ..."
+    # - chmod +x test.sh
+    # - ./test.sh
+    - nginx -t
+
+build_image:
+  stage: build
+  only:
+    - main
+  script:
+    - ls -ltrh
+    - pwd
+    - echo "Build done for $APP_NAME ..."
+
+push_image:
+  only:
+    - main
+  stage: build
+  needs:
+    - build_image
+  script:
+    - echo "logging to registry..."
+    - echo "push success"
+
+deploy_to_dev:
+  only:
+    - main
+  stage: deploy
+  script:
+    - echo "Deploing to dev env..."
+
+
